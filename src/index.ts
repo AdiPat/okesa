@@ -1,3 +1,3 @@
-import "./config";
+import { Makakasho } from "./core/makakasho";
 
-console.log("Hello, Okesa!");
+export { Makakasho };
