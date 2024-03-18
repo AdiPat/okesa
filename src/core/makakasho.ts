@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { OkesaInitParameters } from "../types";
 import { tokenize } from "./tokenizer";
+import { posTag } from "./pos-tagger";
 
 class Makakasho {
   private brain: OpenAI;
@@ -21,7 +22,7 @@ class Makakasho {
           content: prompt,
         },
       ],
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
     });
 
     const resultContent = result.choices[0].message.content;
@@ -31,7 +32,7 @@ class Makakasho {
     return tokens;
   }
 
-  tokenize(text: string) {
+  tokenize(text: string): Promise<any> {
     return tokenize(this.runBrain.bind(this), text);
   }
 
