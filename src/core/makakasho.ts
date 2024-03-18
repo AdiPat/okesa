@@ -26,11 +26,13 @@ class Makakasho {
 
     const resultContent = result.choices[0].message.content;
 
-    return resultContent;
+    const tokens = JSON.parse(resultContent as string);
+
+    return tokens;
   }
 
   tokenize(text: string) {
-    return tokenize(this.runBrain, text);
+    return tokenize(this.runBrain.bind(this), text);
   }
 }
 
