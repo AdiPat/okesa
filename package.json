@@ -1,12 +1,18 @@
 {
-  "name": "okesa",
+  "name": "@aditya.patange/okesa",
   "version": "1.0.0",
   "description": "Okesa: LLM-powered Natural Language Processing 💬",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "general-purpose",
+    "nlp",
+    "ai",
+    "openai"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -15,6 +21,9 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "openai": "^4.29.1"
+    "openai": "^4.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
   }
 }
