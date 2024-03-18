@@ -34,6 +34,10 @@ class Makakasho {
   tokenize(text: string) {
     return tokenize(this.runBrain.bind(this), text);
   }
+
+  posTagging(text: string): Promise<any> {
+    return posTag(this.runBrain.bind(this), text);
+  }
 }
 
 export { Makakasho };
