@@ -1,16 +1,18 @@
 import OpenAI from "openai";
 import { OkesaInitParameters } from "../types";
-import { tokenize } from "./tokenizer";
-import { posTag } from "./pos-tagger";
+import { NlpConfig } from "./nlp-config";
 
 class Makakasho {
   private brain: OpenAI;
+  private MakakashoInitiator =
+    "You are Makakasho, a NLP (Natural Language Processing) Cyborg that responds. \
+     You perform NLP actions as defined by the user on a given text. ";
 
   constructor({ okesaApiKey }: OkesaInitParameters) {
     this.brain = new OpenAI({ apiKey: okesaApiKey });
   }
 
-  async runBrain(seed: string, prompt: string): Promise<string | null> {
+  async activateBrain(seed: string, prompt: string): Promise<string | null> {
     const result = await this.brain.chat.completions.create({
       messages: [
         {
@@ -32,12 +34,15 @@ class Makakasho {
     return tokens;
   }
 
-  tokenize(text: string): Promise<any> {
-    return tokenize(this.runBrain.bind(this), text);
-  }
+  do(config: { schema: object; prompt: string }, text: string) {
+    const { schema, prompt } = NlpConfig.TOKENIZER;
 
-  posTagging(text: string): Promise<any> {
-    return posTag(this.runBrain.bind(this), text);
+    const fullPrompt =
+      prompt
+        .replace("{schema}", JSON.stringify(schema))
+        .replace("{text}", text) + "\n ONLY RETURN VALID JSON.";
+
+    return this.activateBrain(this.MakakashoInitiator, fullPrompt);
   }
 }
 
