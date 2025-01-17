@@ -1,6 +1,6 @@
 {
   "name": "okesa",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Okesa: LLM-powered Natural Language Processing 💬",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
@@ -33,5 +33,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/AdiPat/okesaa#readme"
+  "homepage": "https://github.com/AdiPat/okesa#readme"
 }
