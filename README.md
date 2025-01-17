@@ -7,7 +7,7 @@
 Okesa is a general-purpose, powerful, and versatile NLP (Natural Language Processing) library for Node.js, designed to provide a wide range of NLP features for text analysis and processing.
 
 <p align="center" width="100%">
-    <img height="300px" src="assets/okesa_logo.png">
+    <img height="300px" src="https://i.ibb.co/4WHKQQP/okesa-logo.png">
 </p>
 
 
