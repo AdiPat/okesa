@@ -1,6 +1,6 @@
 {
   "name": "okesa",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Okesa: LLM-powered Natural Language Processing 💬",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
