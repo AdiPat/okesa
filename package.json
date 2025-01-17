@@ -4,8 +4,9 @@
   "description": "Okesa: LLM-powered Natural Language Processing 💬",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/index.ts"
+    "build": "tsc",
+    "test": "vitest --testTimeout 30000",
+    "test:coverage": "vitest --coverage --silent"
   },
   "keywords": [
     "general-purpose",
@@ -14,16 +15,22 @@
     "openai"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.11.28",
     "typescript": "^5.4.2"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.0.20",
+    "ai": "^4.0.39",
+    "chalk": "^4.0.0",
     "dotenv": "^16.4.5",
-    "openai": "^4.0.0"
+    "openai": "^4.0.0",
+    "vitest": "^3.0.1",
+    "zod": "^3.24.1"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "homepage": "https://github.com/AdiPat/okesaa#readme"
 }

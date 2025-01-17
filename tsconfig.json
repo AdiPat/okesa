@@ -1,15 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2016",
     "module": "CommonJS",
-    "outDir": "dist",
-    "strict": true,
-    "baseUrl": "./",
     "moduleResolution": "Node",
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
     "paths": {
-      "openai": ["node_modules/openai"]
-    }
+      "*": ["node_modules/*"]
+    },
+    "declarationDir": "./types",
+    "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*", "index.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "test_folder"]
 }
