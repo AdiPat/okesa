@@ -67,7 +67,7 @@ export async function init(silent = true): Promise<boolean> {
       );
     }
 
-    dotenv.config();
+    dotenv.config({ path: ".env", override: true });
 
     const apiKey = process.env.OPENAI_API_KEY;
     const pingTestMaxTokens = 48;
@@ -122,31 +122,40 @@ async function generateObjectInternal<T>(
   schemaDescription: string,
   system = PROMPTS.SYSTEM()
 ): Promise<T | null> {
-  if (!Object.keys(PROMPTS).includes(promptKey)) {
-    log(`Invalid prompt key: ${promptKey}.`, "error");
-    return null;
-  }
-
-  if (!initialized) {
-    const success = await init(options.silentStart);
-    if (!success) return null;
-    initialized = true;
-  }
-  const { text, modelName = DEFAULT_MODEL_NAME } = options;
-  const prompt = PROMPTS[promptKey](text);
   try {
-    const model = openai(modelName);
-    const config = {
-      prompt,
-      system,
-      schema,
-      schemaDescription,
-      model,
-    };
-    const { object } = await AI.generateObject(config);
-    return object;
+    if (!Object.keys(PROMPTS).includes(promptKey)) {
+      log(`Invalid prompt key: ${promptKey}.`, "error");
+      return null;
+    }
+
+    if (!initialized) {
+      const success = await init(options.silentStart);
+      if (!success) return null;
+      initialized = true;
+    }
+    const { text, modelName = DEFAULT_MODEL_NAME } = options;
+    const prompt = PROMPTS[promptKey](text);
+    try {
+      const model = openai(modelName);
+      const config = {
+        prompt,
+        system,
+        schema,
+        schemaDescription,
+        model,
+      };
+      const { object } = await AI.generateObject(config);
+      return object;
+    } catch (error: any) {
+      log(`Unexpected error: ${error?.message}.`, "error");
+      console.error(error);
+      return null;
+    }
   } catch (error: any) {
-    log(`Unexpected error: ${error?.message}.`, "error");
+    log(
+      `Unexpected error in generateObjectInternal function: ${error?.message}.`,
+      "error"
+    );
     console.error(error);
     return null;
   }
@@ -170,7 +179,7 @@ export async function posTagging(
 ): Promise<POSTagging[]> {
   const promptKey = "POS_TAGGING";
   const schema = z.object({
-    posTagging: z.array(
+    result: z.array(
       z.object({
         word: z.string(),
         pos: z.string(),
@@ -186,7 +195,7 @@ export async function posTagging(
     schemaDescription
   );
 
-  return result?.posTagging || [];
+  return result?.result || [];
 }
 
 /**
@@ -210,20 +219,24 @@ export async function tokenize(
 ): Promise<Tokenization | null> {
   const promptKey = "TOKENIZATION";
   const schema = z.object({
-    words: z.string(),
-    sentences: z.string(),
-    phrases: z.string(),
-    whitespace: z.string(),
-    symbols: z.string(),
+    result: z.object({
+      words: z.string(),
+      sentences: z.string(),
+      phrases: z.string(),
+      whitespace: z.string(),
+      symbols: z.string(),
+    }),
   });
   const schemaDescription = `Tokenization Results Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -244,24 +257,26 @@ export interface NER {
 export async function ner(options: FunctionOptions): Promise<NER[]> {
   const promptKey = "NER";
 
-  const schema = z.array(
-    z.object({
-      entity: z.string(),
-      label: z.string(),
-      start: z.number(),
-      end: z.number(),
-    })
-  );
+  const schema = z.object({
+    result: z.array(
+      z.object({
+        entity: z.string(),
+        label: z.string(),
+        start: z.number(),
+        end: z.number(),
+      })
+    ),
+  });
   const schemaDescription = `NER Schema`;
 
-  return (
-    (await generateObjectInternal(
-      options,
-      promptKey,
-      schema,
-      schemaDescription
-    )) || []
+  const result = await generateObjectInternal(
+    options,
+    promptKey,
+    schema,
+    schemaDescription
   );
+
+  return result?.result || [];
 }
 
 /**
@@ -283,17 +298,21 @@ export async function sentimentAnalysis(
   const promptKey = "SENTIMENT_ANALYSIS";
 
   const schema = z.object({
-    sentiment: z.enum(["positive", "negative", "neutral"]),
-    confidence: z.number().min(0).max(1),
+    result: z.object({
+      sentiment: z.enum(["positive", "negative", "neutral"]),
+      confidence: z.number().min(0).max(1),
+    }),
   });
   const schemaDescription = `Sentiment Analysis Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -315,17 +334,21 @@ export async function languageDetection(
   const promptKey = "LANGUAGE_DETECTION";
 
   const schema = z.object({
-    language: z.string(),
-    confidence: z.number().min(0).max(1),
+    result: z.object({
+      language: z.string(),
+      confidence: z.number().min(0).max(1),
+    }),
   });
   const schemaDescription = `Language Detection Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -347,17 +370,21 @@ export async function textClassification(
   const promptKey = "TEXT_CLASSIFICATION";
 
   const schema = z.object({
-    class: z.string(),
-    confidence: z.number().min(0).max(1),
+    result: z.object({
+      class: z.string(),
+      confidence: z.number().min(0).max(1),
+    }),
   });
   const schemaDescription = `Text Classification Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -378,16 +405,20 @@ export async function textSummarization(
   const promptKey = "TEXT_SUMMARIZATION";
 
   const schema = z.object({
-    summary: z.string(),
+    result: z.object({
+      summary: z.string(),
+    }),
   });
   const schemaDescription = `Text Summarization Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -405,15 +436,19 @@ export async function keywordExtraction(
 ): Promise<KeywordExtraction | null> {
   const promptKey = "KEYWORD_EXTRACTION";
 
-  const schema = z.array(z.string());
+  const schema = z.object({
+    result: z.array(z.string()),
+  });
   const schemaDescription = `Keyword Extraction Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -434,16 +469,20 @@ export async function spellChecking(
   const promptKey = "SPELL_CHECKING";
 
   const schema = z.object({
-    corrected_text: z.string(),
+    result: z.object({
+      corrected_text: z.string(),
+    }),
   });
   const schemaDescription = `Spell Checking Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -461,15 +500,19 @@ export async function stemmingLemmatization(
 ): Promise<StemmingLemmatization | null> {
   const promptKey = "STEMMING_LEMMATIZATION";
 
-  const schema = z.array(z.string());
+  const schema = z.object({
+    result: z.array(z.string()),
+  });
   const schemaDescription = `Stemming and Lemmatization Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
 
 /**
@@ -491,19 +534,23 @@ export async function dependencyParsing(
 ): Promise<DependencyParsing[] | null> {
   const promptKey = "DEPENDENCY_PARSING";
 
-  const schema = z.array(
-    z.object({
-      word: z.string(),
-      dependency: z.string(),
-      head: z.number(),
-    })
-  );
+  const schema = z.object({
+    result: z.array(
+      z.object({
+        word: z.string(),
+        dependency: z.string(),
+        head: z.number(),
+      })
+    ),
+  });
   const schemaDescription = `Dependency Parsing Schema`;
 
-  return await generateObjectInternal(
+  const result = await generateObjectInternal(
     options,
     promptKey,
     schema,
     schemaDescription
   );
+
+  return result?.result || null;
 }
